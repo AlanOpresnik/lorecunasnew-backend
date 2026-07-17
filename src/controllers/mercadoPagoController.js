@@ -1,4 +1,4 @@
-    const { MercadoPagoConfig, Preference } = require("mercadopago");
+const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
     const Order = require("../models/Order");
 
     const client = new MercadoPagoConfig({
@@ -67,6 +67,7 @@
             failure: failureUrl,
             pending: pendingUrl,
             },
+            external_reference: order._id.toString(),
             metadata: {
             usuario: usuario || "",
             correo: correo || "",
@@ -104,10 +105,10 @@
         return res.status(200).json({ received: true });
         }
 
-        const paymentStatus = body?.action || "pending";
-        const mappedStatus = paymentStatus === "payment.updated"
-        ? "pending"
-        : paymentStatus === "approved"
+        const paymentService = new Payment(client);
+        const paymentDetails = await paymentService.get({ id: paymentId });
+        const paymentStatus = paymentDetails?.status || body?.action || "pending";
+        const mappedStatus = paymentStatus === "approved"
         ? "approved"
         : paymentStatus === "rejected"
         ? "rejected"
@@ -117,21 +118,25 @@
         ? "refunded"
         : "pending";
 
-        const order = await Order.findOneAndUpdate(
-        { mercadoPagoId: paymentId },
-        {
-            statusPago: mappedStatus,
-        },
-        { new: true },
+        const orderId = paymentDetails?.external_reference || paymentDetails?.metadata?.orderId;
+
+        let order = null;
+        if (orderId) {
+        order = await Order.findByIdAndUpdate(
+            orderId,
+            { statusPago: mappedStatus },
+            { new: true },
         );
+        }
 
         if (!order) {
-        return res.status(404).json({ message: "Order not found for webhook" });
+        return res.status(200).json({ received: true, message: "No matching order found" });
         }
 
         res.status(200).json({ received: true, orderId: order._id, statusPago: mappedStatus });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error("Mercado Pago webhook error:", error);
+        res.status(200).json({ received: true, message: error.message });
     }
     };
 
