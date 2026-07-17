@@ -17,9 +17,16 @@ app.get("/", (req, res) => {
 });
 
 const productRoutes = require("./routes/productRoutes");
+const statsRoutes = require("./routes/statsRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const mercadoPagoRoutes = require("./routes/mercadoPagoRoutes");
 app.use("/api/products", productRoutes);
+app.use("/api/stats", statsRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/mercadopago", mercadoPagoRoutes);
 
-// Error Handling Middleware
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
@@ -28,7 +35,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

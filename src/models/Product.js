@@ -36,6 +36,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please add a short description"],
     },
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+    },  
     images: {
       type: [String],
       default: [],
@@ -66,6 +71,9 @@ const productSchema = new mongoose.Schema(
       required: [true, "Please add stock quantity"],
       default: 0,
     },
+    videoUrl:{
+      type:String,
+    }
   },
   {
     timestamps: true,
