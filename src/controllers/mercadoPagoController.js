@@ -57,9 +57,9 @@
             ],
             payer: {
             name: usuario,
-            email: correo,
+            email: correo || "test@test.com",
             phone: {
-                number: telefono,
+                number: telefono || "",
             },
             },
             back_urls: {
@@ -79,6 +79,10 @@
         },
         });
 
+        await Order.findByIdAndUpdate(order._id, {
+        mercadoPagoId: response.id,
+        });
+
         res.status(200).json({
         init_point: response.init_point,
         preferenceId: response.id,
@@ -92,23 +96,31 @@
 
     const handleMercadoPagoWebhook = async (req, res) => {
     try {
-        const { type, data } = req.body || {};
+        const body = req.body || {};
+        const paymentId = body?.data?.id;
+        const type = body?.type;
 
-        if (!data?.id) {
+        if (!paymentId || type !== "payment") {
         return res.status(200).json({ received: true });
         }
 
-        const paymentId = data.id;
-        const paymentStatus = type === "payment" ? req.body.action : null;
-
-        if (!paymentStatus) {
-        return res.status(200).json({ received: true });
-        }
+        const paymentStatus = body?.action || "pending";
+        const mappedStatus = paymentStatus === "payment.updated"
+        ? "pending"
+        : paymentStatus === "approved"
+        ? "approved"
+        : paymentStatus === "rejected"
+        ? "rejected"
+        : paymentStatus === "cancelled"
+        ? "cancelled"
+        : paymentStatus === "refunded"
+        ? "refunded"
+        : "pending";
 
         const order = await Order.findOneAndUpdate(
         { mercadoPagoId: paymentId },
         {
-            statusPago: paymentStatus === "payment.updated" ? "pending" : paymentStatus,
+            statusPago: mappedStatus,
         },
         { new: true },
         );
@@ -117,7 +129,7 @@
         return res.status(404).json({ message: "Order not found for webhook" });
         }
 
-        res.status(200).json({ received: true, orderId: order._id });
+        res.status(200).json({ received: true, orderId: order._id, statusPago: mappedStatus });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
