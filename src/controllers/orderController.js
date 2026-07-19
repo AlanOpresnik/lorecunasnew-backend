@@ -22,19 +22,26 @@ const getOrderById = async (req, res) => {
 };
 
 const getOrderByPreferenceId = async (req, res) => {
-  const preferenceId = req.params.preferenceId;
   try {
+    const { preferenceId } = req.params;
+
+    console.log(preferenceId);
+
     const order = await Order.findOne({
-      where: {
-        mercadoPagoId: preferenceId
-      }
+      mercadoPagoId: preferenceId,
     });
+
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({
+        message: "Order not found",
+      });
     }
-    res.status(200).json(order);
+
+    return res.status(200).json(order);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
