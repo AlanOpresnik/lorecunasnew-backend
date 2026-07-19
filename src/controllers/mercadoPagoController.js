@@ -1,5 +1,6 @@
 const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
@@ -39,12 +40,12 @@ const createPaymentPreference = async (req, res) => {
       producto,
       montoPago: productPrice,
       statusPago: "pending",
-      notas: orderData?.notes || "",
+      direction: orderData?.direction || "",
     });
 
     const preference = new Preference(client);
 
-    const successUrl = `https://lorecunas-new.vercel.app/checkout/payment/success/${order.id}`;
+    const successUrl = `https://lorecunas-new.vercel.app/checkout/payment/success/${order.id    }`;
     const failureUrl = `https://lorecunas-new.vercel.app/checkout/payment/failed/${order.id}`;
     const pendingUrl = `https://lorecunas-new.vercel.app/checkout/payment/pending/${order.id}`;
 
@@ -127,19 +128,29 @@ const handleMercadoPagoWebhook = async (req, res) => {
     const orderId =
       paymentDetails?.external_reference || paymentDetails?.metadata?.orderId;
 
-    let order = null;
-    if (orderId) {
-      order = await Order.findByIdAndUpdate(
-        orderId,
-        { statusPago: mappedStatus },
-        { new: true },
-      );
+    if (!orderId) {
+      return res.status(200).json({ received: true, message: "No matching order found" });
     }
 
+    const order = await Order.findById(orderId);
     if (!order) {
-      return res
-        .status(200)
-        .json({ received: true, message: "No matching order found" });
+      return res.status(200).json({ received: true, message: "No matching order found" });
+    }
+
+    const previousStatus = order.statusPago;
+    order.statusPago = mappedStatus;
+    await order.save();
+
+    if (mappedStatus === "approved" && previousStatus !== "approved") {
+      const productId =
+        order.producto?._id || order.producto?.id || order.producto;
+
+      if (productId) {
+        await Product.findOneAndUpdate(
+          { _id: productId, stock: { $gt: 0 } },
+          { $inc: { stock: -1 } },
+        );
+      }
     }
 
     res

@@ -41,7 +41,8 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    notas: {
+    direction: {
+      require,
       type: String,
       default: "",
     },

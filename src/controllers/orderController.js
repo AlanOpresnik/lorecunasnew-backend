@@ -9,6 +9,41 @@ const getOrders = async (req, res) => {
   }
 };
 
+const getOrderStats = async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    const stats = {
+      totalOrders: orders.length,
+      approved: 0,
+      pending: 0,
+      rejected: 0,
+      totalRevenue: 0,
+    };
+
+    for (const order of orders) {
+      switch (order.statusPago) {
+        case "approved":
+          stats.approved++;
+          stats.totalRevenue += order.montoPago || 0;
+          break;
+
+        case "pending":
+          stats.pending++;
+          break;
+
+        case "rejected":
+          stats.rejected++;
+          break;
+      }
+    }
+
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -56,14 +91,14 @@ const createOrder = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const { statusPago, mercadoPagoId, notas } = req.body;
+    const { statusPago, mercadoPagoId, direction } = req.body;
 
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       {
         statusPago,
         ...(mercadoPagoId !== undefined && { mercadoPagoId }),
-        ...(notas !== undefined && { notas }),
+        ...(direction !== undefined && { direction }),
       },
       { new: true, runValidators: true },
     );
@@ -96,5 +131,6 @@ module.exports = {
   createOrder,
   updateOrderStatus,
   deleteOrder,
-  getOrderByPreferenceId
+  getOrderByPreferenceId,
+  getOrderStats
 };
