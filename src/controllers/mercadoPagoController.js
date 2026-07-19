@@ -44,15 +44,9 @@ const createPaymentPreference = async (req, res) => {
 
     const preference = new Preference(client);
 
-    const successUrl =
-      process.env.MERCADOPAGO_SUCCESS_URL ||
-      `https://lorecunas-new.vercel.com/checkout/payment/success/${order.id}`;
-    const failureUrl =
-      process.env.MERCADOPAGO_FAILURE_URL ||
-      `https://lorecunas-new.vercel.com/checkout/payment/failed/${order.id}`;
-    const pendingUrl =
-      process.env.MERCADOPAGO_PENDING_URL ||
-      `https://lorecunas-new.vercel.com/checkout/payment/pending/${order.id}`;
+    const successUrl = `https://lorecunas-new.vercel.com/checkout/payment/success/${order.id}`;
+    const failureUrl = `https://lorecunas-new.vercel.com/checkout/payment/failed/${order.id}`;
+    const pendingUrl = `https://lorecunas-new.vercel.com/checkout/payment/pending/${order.id}`;
 
     const response = await preference.create({
       body: {
