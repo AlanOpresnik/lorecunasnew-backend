@@ -44,9 +44,9 @@ const createPaymentPreference = async (req, res) => {
 
     const preference = new Preference(client);
 
-    const successUrl = `https://lorecunas-new.vercel.com/checkout/payment/success/${order.id}`;
-    const failureUrl = `https://lorecunas-new.vercel.com/checkout/payment/failed/${order.id}`;
-    const pendingUrl = `https://lorecunas-new.vercel.com/checkout/payment/pending/${order.id}`;
+    const successUrl = `https://lorecunas-new.vercel.app/checkout/payment/success/${order.id}`;
+    const failureUrl = `https://lorecunas-new.vercel.app/checkout/payment/failed/${order.id}`;
+    const pendingUrl = `https://lorecunas-new.vercel.app/checkout/payment/pending/${order.id}`;
 
     const response = await preference.create({
       body: {
