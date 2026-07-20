@@ -7,27 +7,35 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 connectDB();
-app.use(cookieParser());
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+app.use(cookieParser());
+
+// 👇 esto es lo que faltaba
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://lorecunas-new.vercel.app",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("No permitido por CORS"));
+      callback(null, false); // deniega sin tirar Error
     }
   },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // responde el preflight explícitamente
+
 app.use(express.json());
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Lorecunas API" });
 });
-
-
 
 const productRoutes = require("./routes/productRoutes");
 const statsRoutes = require("./routes/statsRoutes");
