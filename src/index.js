@@ -8,11 +8,18 @@ const app = express();
 
 connectDB();
 app.use(cookieParser());
-app.use(
-  cors({
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("No permitido por CORS"));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(morgan("dev"));
 
