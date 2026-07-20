@@ -19,16 +19,17 @@ const login = async (req, res) => {
 
   const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "2h" });
 
-res.cookie("token", token, {
-  httpOnly: true,
-  secure: false,
-  sameSite: "lax",
-  path: "/",
-  maxAge: 2 * 60 * 60 * 1000,
-});
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 2 * 60 * 60 * 1000,
+  });
 
   res.json({
     success: true,
+    token
   });
 };
 
