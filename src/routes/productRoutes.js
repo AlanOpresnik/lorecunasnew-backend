@@ -18,12 +18,14 @@ const upload = multer({
   },
 });
 
+const requireAdmin = require('../../authMiddleware');
+
 router.get("/", getProducts);
 router.get("/featured", getFeaturedProducts);
-router.get("/category/:category", getProductByCategory);
-router.post("/", upload.array("imageFiles", 10), createProduct);
+router.get("/category/:category",getProductByCategory);
+router.post("/", upload.array("imageFiles", 10),requireAdmin, createProduct);
 router.get("/:id", getProductById);
-router.put("/:id", upload.array("imageFiles", 10), updateProduct);
-router.delete("/:id", deleteProduct);
+router.put("/:id", upload.array("imageFiles", 10),requireAdmin, updateProduct);
+router.delete("/:id",requireAdmin, deleteProduct);
 
 module.exports = router;

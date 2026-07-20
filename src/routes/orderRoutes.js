@@ -9,13 +9,14 @@ const {
   getOrderByPreferenceId,
   getOrderStats,
 } = require("../controllers/orderController");
+const requireAdmin = require('../../authMiddleware');
 
-router.get("/", getOrders);
-router.get('/stats', getOrderStats)
-router.get("/:id", getOrderById);
-router.post("/", createOrder);
-router.put("/:id/status", updateOrderStatus);
-router.delete("/:id", deleteOrder);
-router.get('/preferenceId/:preferenceId', getOrderByPreferenceId)
+router.get("/", requireAdmin, getOrders);
+router.get("/stats", requireAdmin, getOrderStats);
+router.get("/:id", requireAdmin, getOrderById);
+router.post("/", requireAdmin, createOrder);
+router.put("/:id/status", requireAdmin, updateOrderStatus);
+router.delete("/:id", requireAdmin, deleteOrder);
+router.get("/preferenceId/:preferenceId", requireAdmin, getOrderByPreferenceId);
 
 module.exports = router;

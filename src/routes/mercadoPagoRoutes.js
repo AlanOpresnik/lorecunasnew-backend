@@ -4,6 +4,7 @@ const {
   createPaymentPreference,
   handleMercadoPagoWebhook,
 } = require("../controllers/mercadoPagoController");
+const requireAdmin = require('../../authMiddleware');
 
 router.post("/create-preference", createPaymentPreference);
 router.post("/webhook", handleMercadoPagoWebhook);

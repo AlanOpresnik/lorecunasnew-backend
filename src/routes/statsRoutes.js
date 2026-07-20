@@ -5,9 +5,10 @@ const {
   createOrUpdateStats,
   syncStatsFromWebhook,
 } = require("../controllers/StastController");
+const requireAdmin = require("../../authMiddleware");
 
-router.get("/", getStats);
-router.post("/", createOrUpdateStats);
-router.post("/sync", syncStatsFromWebhook);
+router.get("/",requireAdmin, getStats);
+router.post("/", requireAdmin,createOrUpdateStats);
+router.post("/sync",requireAdmin, syncStatsFromWebhook);
 
 module.exports = router;
