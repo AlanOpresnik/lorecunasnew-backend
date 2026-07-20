@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
-const cookieParser = require("cookie-parser");
 const app = express();
 
 connectDB();
@@ -11,7 +10,6 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://lorecunas-new.vercel.app",
 ];
-app.use(cookieParser());
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);

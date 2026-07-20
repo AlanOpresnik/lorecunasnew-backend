@@ -1,9 +1,8 @@
 const jwt = require("jsonwebtoken");
 
 function requireAdmin(req, res, next) {
-  const token = req.cookies.token;
-console.log(req.headers.cookie);
-console.log(req.cookies);
+  const authHeader = req.headers.authorization; // "Bearer <token>"
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({
@@ -21,7 +20,6 @@ console.log(req.cookies);
     }
 
     req.admin = payload;
-
     next();
   } catch (err) {
     return res.status(401).json({
