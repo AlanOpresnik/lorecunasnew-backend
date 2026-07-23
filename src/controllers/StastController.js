@@ -25,13 +25,25 @@ const calculateStats = async () => {
 
 const getStats = async (req, res) => {
   try {
-    const stats = await Stats.findOne().sort({ createdAt: -1 });
+    const currentStats = await Stats.findOne().sort({ createdAt: -1 });
 
-    if (!stats) {
-      const initialStats = await calculateStats();
-      const createdStats = await Stats.create(initialStats);
-      return res.status(200).json(createdStats);
-    }
+    const nextStats = await calculateStats();
+
+    const payload = {
+      ...nextStats,
+      // Mantiene el total de órdenes que ya tenías
+      totalOrders: currentStats?.totalOrders ?? 0,
+    };
+
+    const stats = await Stats.findOneAndUpdate(
+      {},
+      { $set: payload },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+      }
+    );
 
     res.status(200).json(stats);
   } catch (error) {

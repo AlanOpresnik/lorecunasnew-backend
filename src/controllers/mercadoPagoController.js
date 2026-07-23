@@ -29,7 +29,7 @@ const createPaymentPreference = async (req, res) => {
     }
 
     const productName = producto.name || producto.title || "Producto";
-    const productPrice = 1;
+    const productPrice = 10000;
     const preferenceTitle = `Seña de ${productName}`;
 
     const order = await Order.create({

@@ -9,6 +9,7 @@ connectDB();
 const allowedOrigins = [
   "http://localhost:3000",
   "https://lorecunas-new.vercel.app",
+  "https://www.lorecunas.com.ar"
 ];
 app.use(cors({
   origin: function (origin, callback) {
